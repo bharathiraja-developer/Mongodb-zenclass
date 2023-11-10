@@ -78,10 +78,42 @@ MongoDB-Zenclass design :
 				});
 
 	6. Find the number of users who are absent and task is not submitted  between 15-oct-2020 and 31-oct-2020.
-		query : 
-		
-		
-					
-
+		query : db.users.aggregate([
+				{
+				$lookup:{
+				from:"attendance",
+				localField:"id",
+				foreignField:"absent",
+				as:"Absent_Student"
+				}}
+				]).forEach(doc=>{
+				doc.Absent_Student.map(file=>{
+				if(file.date>="15-oct-2020"&&file.date<="31-oct-2020"){
+				print(`Name : ${doc.name},Absent on ${file.date}`)}
+				})
+				});
+				db.tasks.aggregate([
+				{
+				$lookup:{
+				from:"users",
+				localField:"Notsubmit",
+				foreignField:"id",
+				as:"Not_Submitted"
+				}
+				},{
+				$lookup:{
+				from:"topics",
+				localField:"taskId",
+				foreignField:"taskId",
+				as:"Date"
+				}
+				}
+				]).forEach(doc=>{
+				if(doc.Date.length>0){
+				doc.Not_Submitted.map(file=>{
+				print(`Name : ${file.name} not submit task on ${doc.Date[0].date}`)
+				})
+				}
+				});
 
 */
